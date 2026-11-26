@@ -1,0 +1,28 @@
+#!name = LocketGold By Mhale 🐳
+#!desc = © 2026 Mhale. All rights reserved.
+#!author = Mhale 🐳 | Remote config
+#!system=ios
+
+[Rule]
+AND,((DOMAIN,api.locketcamera.com),(PROTOCOL,UDP),(DEST-PORT,443)),REJECT
+AND,((DOMAIN,us-central1-locket-4252a.cloudfunctions.net),(PROTOCOL,UDP),(DEST-PORT,443)),REJECT
+AND,((DOMAIN,firebaseremoteconfig.googleapis.com),(PROTOCOL,UDP),(DEST-PORT,443)),REJECT
+
+[URL Rewrite]
+^https:\/\/api\.locketcamera\.com\/generateFilteredImage 'https://doh.mhale.io.vn/generateFilteredImage' 307
+
+[Script]
+# RevenueCat - script hiện tại
+locket_revenuecat = type=http-response, pattern=^https:\/\/api\.revenuecat\.com\/.+\/(receipts|subscribers), script-path=https://raw.githubusercontent.com/PhTrien/mhale/main/js/Locket_Mhale.js, requires-body=true, max-size=-1, timeout=60
+
+# Xóa header cache
+locket_delete_header = type=http-request, pattern=^https:\/\/(api\.revenuecat\.com|firebaseremoteconfig\.googleapis\.com)\/.+, script-path=https://raw.githubusercontent.com/PhTrien/mhale/main/js/deleteHeader.js, timeout=60
+
+# Firebase Remote Config
+locket_unlocked = type=http-response, pattern=^https:\/\/firebaseremoteconfig\.googleapis\.com\/.+, script-path=https://raw.githubusercontent.com/PhTrien/mhale/main/js/Locket_Unlocked.js, requires-body=true, max-size=-1, timeout=60
+
+# AI Filter / Photobooth
+locket_filters = type=http-request, pattern=^https:\/\/(api\.locketcamera\.com|us-central1-locket-4252a\.cloudfunctions\.net)\/(?:[^?#]*\/)?generateFilteredImage(?:\?.*)?$, script-path=https://raw.githubusercontent.com/PhTrien/mhale/main/js/Locket_Filters.js, requires-body=true, max-size=-1, timeout=120
+
+[MITM]
+hostname = %APPEND% api.locketcamera.com, firebaseremoteconfig.googleapis.com, api.revenuecat.com
